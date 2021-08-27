@@ -1,5 +1,6 @@
 import { Fragment } from 'react';
-import { Theme, createStyles, makeStyles } from '@material-ui/core/styles';
+import styled from 'styled-components';
+import { withStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import MuiAccordion from '@material-ui/core/Accordion';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
@@ -7,7 +8,7 @@ import AccordionDetails from '@material-ui/core/AccordionDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Avatar from '@material-ui/core/Avatar';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
-import Divider from '@material-ui/core/Divider';
+import Tooltip from '@material-ui/core/Tooltip';
 import { Vault } from '../../../types';
 import { StrategistList } from '../StrategistList';
 import EtherScanLink from '../../common/EtherScanLink';
@@ -26,171 +27,182 @@ type VaultItemListProps = {
 export const VaultItemList = (props: VaultItemListProps) => {
     const { vault } = props;
     const config = vault.configOK;
+    const StyledDivRoot = styled.div`
+        && {
+            width: 100%;
+            margin: 5px;
+            border-radius: 5px;
+        }
+    `;
+    const StyledExpandMoreIcon = styled(ExpandMoreIcon)`
+        && {
+            color: ${({ theme }) => theme.text} !important;
+        }
+    `;
+    const StyledStrats = styled.span`
+        && {
+            color: ${({ theme }) => theme.subtitle} !important;
 
-    const useStyles = makeStyles((theme: Theme) =>
-        createStyles({
-            root: {
-                width: '100%',
-                margin: '5px',
-                borderRadius: '5px',
-            },
-            link: {
-                color: '#fff',
-                textDecoration: 'none',
-                '&:hover': {
-                    textDecoration: 'underline',
-                },
-            },
-            textVault: {
-                fontFamily: 'Open Sans',
-                lineHeight: '27px',
-                fontSize: '18px',
-                '&:hover': {
-                    fontSize: 19,
-                },
-            },
-            warningIcon: {
-                borderRadius: 3,
-                padding: 1,
-                boxShadow: '0px 0px 0px 0 rgba(0,0,0,0.2)',
-            },
-            expandIcon: {
-                color: '#fff',
-            },
-            list: {
-                padding: 0,
-            },
-            alert: {
-                background: 'transparent',
-                color: 'red',
-                fontWeight: 400,
-            },
+            text-decoration: none;
+            font-weight: normal;
 
-            divider: {
-                background: '#1d265f',
-                opacity: '0.3',
-                marginLeft: '10px',
-                marginRight: '10px',
-            },
-            accordion: {
-                background: config ? '#0a1d3f' : '#006ae3',
-                borderRadius: '8px',
-                color: '#ffffff',
-                marginTop: 10,
-            },
-            heading: {
-                fontSize: theme.typography.pxToRem(15),
-                fontWeight: theme.typography.fontWeightRegular,
-            },
-            paper: {
-                padding: theme.spacing(2),
-            },
-        })
-    );
+            line-height: 16px;
+            font-size: 16px;
+        }
+    `;
+    const StyledTextValue = styled.span`
+        && {
+            color: ${({ theme }) => theme.title} !important;
 
-    const classes = useStyles();
+            text-decoration: underline;
+            font-weight: bold;
+            font-family: Roboto;
+            line-height: 24px;
+            font-size: 16px;
+            font-style: normal;
+            &:hover {
+                font-size: 19;
+            }
+        }
+    `;
+    const StyledReportProblem = styled(ReportProblem)`
+        && {
+            color: ${({ theme }) => theme.title} !important;
+            border-radius: 3;
+            padding: 1;
+            box-shadow: 0px 0px 0px 0 rgba(0, 0, 0, 0.2);
+        }
+    `;
+
+    const StyledMuiAccordion = styled(MuiAccordion)`
+        && {
+            width: 100%;
+            margin-bottom: 15px;
+            align-items: center;
+            align-content: center;
+            background-color: ${({ theme }) =>
+                config ? theme.container : theme.backgroundConfig} !important;
+            border: ${({ theme }) =>
+                config
+                    ? '3px solid transparent'
+                    : `4px solid ${theme.borderConfig}`};
+            border-radius: 8px;
+        }
+    `;
+    const BlueOnGreenTooltip = withStyles({
+        tooltip: {
+            color: config ? 'transparent' : '#F2F2F2',
+            backgroundColor: config ? 'transparent' : '#EB5757',
+            fontSize: '16px',
+        },
+    })(Tooltip);
 
     return (
-        <div className={classes.root}>
-            <MuiAccordion className={classes.accordion}>
+        <StyledDivRoot>
+            <StyledMuiAccordion>
                 <AccordionSummary
-                    expandIcon={
-                        <ExpandMoreIcon className={classes.expandIcon} />
-                    }
+                    expandIcon={<StyledExpandMoreIcon />}
                     aria-controls="panel1a-content"
                     id="panel1a-header"
                 >
-                    <Grid container className={classes.root} spacing={2}>
+                    <Grid container spacing={1} justify="flex-start">
                         <Grid item md={12} xs={12}>
-                            <Grid
-                                container
-                                spacing={1}
-                                direction="row"
-                                justify="center"
-                                alignItems="center"
+                            <BlueOnGreenTooltip
+                                title="Incorrect performance fee"
+                                placement="top"
                             >
-                                <Grid item md={1} xs={3}>
-                                    {vault && vault.icon ? (
-                                        <ListItemAvatar>
-                                            {
+                                <Grid
+                                    container
+                                    spacing={1}
+                                    direction="row"
+                                    justify="flex-start"
+                                    alignItems="center"
+                                >
+                                    <Grid item md={1} xs={3}>
+                                        {vault && vault.icon ? (
+                                            <ListItemAvatar>
+                                                {
+                                                    <Avatar
+                                                        alt={vault.icon}
+                                                        src={vault.icon}
+                                                    />
+                                                }
+                                            </ListItemAvatar>
+                                        ) : (
+                                            <ListItemAvatar>
                                                 <Avatar
-                                                    alt={vault.icon}
-                                                    src={vault.icon}
-                                                />
-                                            }
-                                        </ListItemAvatar>
-                                    ) : (
-                                        <ListItemAvatar>
-                                            <Avatar
-                                                style={{
-                                                    color: 'transparent',
-                                                }}
-                                            >
-                                                .
-                                            </Avatar>
-                                        </ListItemAvatar>
-                                    )}
-                                </Grid>
-                                <Grid item md={5} xs={9}>
-                                    {vault.configErrors ? (
-                                        <HtmlTooltip
-                                            title={
-                                                <Fragment>
-                                                    <Typography color="inherit">
-                                                        {
-                                                            vault.configErrors
-                                                                .length
-                                                        }{' '}
-                                                        warning(s) found
-                                                    </Typography>
-                                                    {vault.configErrors.map(
-                                                        (error, index) => (
-                                                            <em key={index}>
-                                                                {error}
-                                                                <br />
-                                                            </em>
-                                                        )
-                                                    )}
-                                                </Fragment>
-                                            }
-                                        >
-                                            <ReportProblem
-                                                className={classes.warningIcon}
-                                            />
-                                        </HtmlTooltip>
-                                    ) : (
-                                        ''
-                                    )}
-                                    <a
-                                        className={classes.link}
-                                        href={`/vault/${vault.address}`}
-                                        rel="noreferrer"
-                                    >
-                                        <span className={classes.textVault}>
-                                            {' '}
-                                            {vault.name}{' '}
-                                            {`v${vault.apiVersion}`}
-                                            {` (${vault.strategies.length}  strats)`}
-                                        </span>
-                                    </a>
-                                </Grid>
-                                <Hidden xsDown>
-                                    {' '}
-                                    <Grid item md={6} xs={9}>
-                                        {' '}
-                                        <EtherScanLink
-                                            address={vault.address}
-                                            dark={true}
-                                        />
+                                                    style={{
+                                                        color: 'transparent',
+                                                    }}
+                                                >
+                                                    .
+                                                </Avatar>
+                                            </ListItemAvatar>
+                                        )}
                                     </Grid>
-                                </Hidden>
-                            </Grid>
+                                    <Grid item md={4} xs={9}>
+                                        {vault.configErrors ? (
+                                            <HtmlTooltip
+                                                title={
+                                                    <Fragment>
+                                                        <Typography>
+                                                            {
+                                                                vault
+                                                                    .configErrors
+                                                                    .length
+                                                            }{' '}
+                                                            warning(s) found
+                                                        </Typography>
+                                                        {vault.configErrors.map(
+                                                            (error, index) => (
+                                                                <em key={index}>
+                                                                    {error}
+                                                                    <br />
+                                                                </em>
+                                                            )
+                                                        )}
+                                                    </Fragment>
+                                                }
+                                            >
+                                                <StyledReportProblem />
+                                            </HtmlTooltip>
+                                        ) : (
+                                            ''
+                                        )}
+                                        <a
+                                            href={`/vault/${vault.address}`}
+                                            rel="noreferrer"
+                                        >
+                                            <StyledTextValue>
+                                                {' '}
+                                                {vault.name}
+                                                {`v${vault.apiVersion}`}
+                                            </StyledTextValue>
+                                        </a>
+                                        <br />
+                                        <StyledStrats>
+                                            {` ${vault.strategies.length}  strats`}
+                                        </StyledStrats>
+                                    </Grid>
+                                    <Hidden xsDown>
+                                        {' '}
+                                        <Grid item md={6} xs={9}>
+                                            {' '}
+                                            <EtherScanLink
+                                                address={vault.address}
+                                                dark={true}
+                                            />
+                                        </Grid>
+                                    </Hidden>
+                                </Grid>
+                            </BlueOnGreenTooltip>
                         </Grid>
                     </Grid>
                 </AccordionSummary>
                 <Hidden smUp>
-                    <Grid container className={classes.root} spacing={2}>
-                        <Grid item md={8} xs={12}>
+                    <Grid container spacing={2}>
+                        <Grid item md={1} xs={3}></Grid>
+                        <Grid item md={8} xs={8}>
                             {' '}
                             <EtherScanLink
                                 address={vault.address}
@@ -199,13 +211,20 @@ export const VaultItemList = (props: VaultItemListProps) => {
                         </Grid>
                     </Grid>
                 </Hidden>
-                <Divider className={classes.divider} />
-                <AccordionDetails>
-                    <Container>
-                        <StrategistList vault={vault} dark={true} />
+
+                <AccordionDetails style={{ padding: 0, margin: 0 }}>
+                    <Container
+                        maxWidth="lg"
+                        style={{
+                            padding: 0,
+                            margin: 0,
+                            border: '5px solid transparent',
+                        }}
+                    >
+                        <StrategistList vault={vault} dark={false} />
                     </Container>
                 </AccordionDetails>
-            </MuiAccordion>
-        </div>
+            </StyledMuiAccordion>
+        </StyledDivRoot>
     );
 };

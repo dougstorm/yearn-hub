@@ -1,6 +1,9 @@
-import React from 'react';
+import { useMemo } from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-
+import { ThemeProvider } from 'styled-components';
+import { GlobalStyles } from './components/theme/globalStyles';
+import { useDarkMode } from './components/theme/useDarkMode';
+import { lightTheme, darkTheme } from './components/theme/Themes';
 import {
     Home,
     SingleVault,
@@ -13,15 +16,23 @@ import PrivateRoute from './components/common/PrivateRoute';
 import { AuthProvider } from './contexts/AuthContext';
 import { Risk } from './components/app/Risk';
 
-class App extends React.Component {
-    render() {
-        return (
-            <Router>
-                <NavBar />
-                <Switch>
-                    <Route exact path="/" component={Home} />
+const App = () => {
+    const [theme, themeToggler, mountedComponent] = useDarkMode();
+    const themeMode = useMemo(() => {
+        return theme === 'light' ? lightTheme : darkTheme;
+    }, [theme]);
+    // if (!mountedComponent) return <div />;
+
+    return (
+        <Router>
+            <NavBar themeToggler={themeToggler} theme={theme} />
+
+            <Switch>
+                <ThemeProvider theme={themeMode}>
+                    <GlobalStyles /> <Route exact path="/" component={Home} />
                     <Route exact path="/query" component={Query} />
                     <Route
+                        exact
                         path="/query/:groupingId/group/:groups"
                         component={Query}
                     />
@@ -40,10 +51,10 @@ class App extends React.Component {
                         <Route exact path="/signout" component={SignIn} />
                         <PrivateRoute exact path="/risk" component={Risk} />
                     </AuthProvider>
-                </Switch>
-            </Router>
-        );
-    }
-}
+                </ThemeProvider>
+            </Switch>
+        </Router>
+    );
+};
 
 export default App;

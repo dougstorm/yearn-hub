@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import { Container } from '@material-ui/core';
+import styled from 'styled-components';
 import { useParams } from 'react-router-dom';
-import { makeStyles, Theme } from '@material-ui/core/styles';
+
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
 import Avatar from '@material-ui/core/Avatar';
@@ -8,7 +10,6 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
-import CircularProgress from '@material-ui/core/CircularProgress';
 
 import { Vault } from '../../../types';
 import { getVault } from '../../../utils/vaults';
@@ -19,6 +20,7 @@ import { VaultDescription } from './VaultDescription';
 import EtherScanLink from '../../common/EtherScanLink';
 import { ErrorAlert } from '../../common/Alerts';
 import ReactHelmet from '../../common/ReactHelmet';
+import ProgressSpinnerBar from '../../common/ProgressSpinnerBar/ProgressSpinnerBar';
 
 interface TabPanelProps {
     children?: React.ReactNode;
@@ -85,145 +87,145 @@ export const SingleVault = () => {
         loadVaultData();
     }, [vaultId]);
 
-    const useStyles = makeStyles((theme: Theme) => ({
-        root: {
-            [theme.breakpoints.down('sm')]: {
-                maxWidth: '100%',
-            },
-            [theme.breakpoints.up('md')]: {
-                maxWidth: '80%',
-            },
-            [theme.breakpoints.up('lg')]: {
-                maxWidth: '80%',
-            },
-            marginLeft: 'auto',
-            marginRight: 'auto',
-            border:
-                vault && vault.configOK === false ? '5px solid #ff6c6c' : '',
-        },
-        crumbs: {
-            maxWidth: '80%',
-            marginLeft: 'auto',
-            marginRight: 'auto',
-            marginBottom: 15,
-            marginTop: 15,
-            color: '#fff',
-        },
-        text: {
-            color: '#ffff',
-            fontWeight: 'bolder',
-        },
-        row: {
-            background: '#0a1d3f',
-        },
-        gridContainer: {
-            flexGrow: 1,
-        },
-
-        media: {
-            height: 0,
-            paddingTop: '56.25%', // 16:9
-        },
-        expand: {
-            transform: 'rotate(0deg)',
-            marginLeft: 'auto',
-            transition: theme.transitions.create('transform', {
-                duration: theme.transitions.duration.shortest,
-            }),
-        },
-        expandOpen: {
-            transform: 'rotate(180deg)',
-        },
-    }));
-    const classes = useStyles();
+    const StyledCard = styled(Card)`
+        && {
+            background-color: ${({ theme }) => theme.container};
+            color: ${({ theme }) => theme.title};
+            margin-left: auto;
+            margin-right: auto;
+            border: ${({ theme }) =>
+                vault && vault.configOK === false
+                    ? theme.error
+                    : ''} !important;
+            @media (max-width: 1400px) {
+                max-width: 85%;
+            }
+            @media (max-width: 700px) {
+                max-width: 100%;
+            }
+        }
+    `;
+    const StyledSpan = styled.span`
+        && {
+            color: ${({ theme }) => theme.subtitle};
+        }
+    `;
+    const StyledTitle = styled.span`
+        && {
+            color: ${({ theme }) => theme.title};
+            font-weight: bold;
+            font-size: 18px;
+        }
+    `;
     return (
         <React.Fragment>
             <ReactHelmet title={vault ? vault.name : ''} />
             <BreadCrumbs vaultId={vaultId} />
-            <Card className={classes.root}>
+            <Container>
                 {error && (
-                    <ErrorAlert
-                        message={`Error while loading vault ${vaultId}:`}
-                        details={error}
-                    />
+                    <StyledCard>
+                        <ErrorAlert
+                            message={`Error while loading vault ${vaultId}:`}
+                            details={error}
+                        />
+                    </StyledCard>
                 )}
                 {isLoading ? (
-                    <div
-                        style={{
-                            textAlign: 'center',
-                            marginTop: '100px',
-                        }}
-                    >
-                        <CircularProgress />{' '}
-                        <Typography>Loading vault..</Typography>
-                    </div>
+                    <StyledCard>
+                        <div
+                            style={{
+                                textAlign: 'center',
+                                marginTop: '100px',
+                            }}
+                        >
+                            <ProgressSpinnerBar />
+                        </div>
+                    </StyledCard>
                 ) : (
                     !error && (
                         <React.Fragment>
-                            <CardHeader
-                                avatar={
-                                    <Avatar
-                                        src={vault ? vault.icon : ''}
-                                        aria-label="recipe"
-                                    />
-                                }
-                                title={vault ? vault.name : ''}
-                                subheader={
-                                    vault ? (
-                                        <EtherScanLink
-                                            address={vault.address}
+                            <StyledCard>
+                                <CardHeader
+                                    avatar={
+                                        <Avatar
+                                            src={vault ? vault.icon : ''}
+                                            aria-label="recipe"
                                         />
+                                    }
+                                    title={
+                                        <StyledTitle>
+                                            {vault ? vault.name : ''}
+                                        </StyledTitle>
+                                    }
+                                    subheader={
+                                        vault ? (
+                                            <>
+                                                <StyledSpan>
+                                                    {' '}
+                                                    {
+                                                        vault.strategies.length
+                                                    }{' '}
+                                                    strats
+                                                </StyledSpan>
+
+                                                <br />
+                                                <EtherScanLink
+                                                    address={vault.address}
+                                                />
+                                            </>
+                                        ) : (
+                                            ''
+                                        )
+                                    }
+                                />
+                            </StyledCard>
+                            <br />
+                            <StyledCard>
+                                <Tabs
+                                    value={value}
+                                    onChange={handleChange}
+                                    indicatorColor="primary"
+                                    variant="scrollable"
+                                    scrollButtons="auto"
+                                    aria-label="scrollable auto tabs example"
+                                >
+                                    <Tab label="Details" {...a11yProps(0)} />
+                                    <Tab label="Allocation" {...a11yProps(1)} />
+                                    <Tab label="Strategies" {...a11yProps(2)} />
+                                </Tabs>
+
+                                <TabPanel value={value} index={0}>
+                                    <VaultDescription
+                                        vault={vault}
+                                        isLoading={isLoading}
+                                    />
+                                </TabPanel>
+                                <TabPanel value={value} index={1}>
+                                    {vault && vault.strategies.length > 0 ? (
+                                        <div>
+                                            <Pie vault={vault} />
+                                        </div>
                                     ) : (
                                         ''
-                                    )
-                                }
-                            />
-
-                            <Tabs
-                                value={value}
-                                onChange={handleChange}
-                                indicatorColor="primary"
-                                textColor="primary"
-                                variant="scrollable"
-                                scrollButtons="auto"
-                                aria-label="scrollable auto tabs example"
-                            >
-                                <Tab label="Details" {...a11yProps(0)} />
-                                <Tab label="Allocation" {...a11yProps(1)} />
-                                <Tab label="Strategies" {...a11yProps(2)} />
-                            </Tabs>
-
-                            <TabPanel value={value} index={0}>
-                                <VaultDescription
-                                    vault={vault}
-                                    isLoading={isLoading}
-                                />
-                            </TabPanel>
-                            <TabPanel value={value} index={1}>
-                                {vault && vault.strategies.length > 0 ? (
-                                    <div>
-                                        <Pie vault={vault} />
-                                    </div>
-                                ) : (
-                                    ''
-                                )}
-                            </TabPanel>
-                            <TabPanel value={value} index={2}>
-                                {vault && vault.strategies.length > 0 ? (
-                                    <div>
-                                        <StrategistList
-                                            vault={vault}
-                                            dark={false}
-                                        />
-                                    </div>
-                                ) : (
-                                    ''
-                                )}
-                            </TabPanel>
+                                    )}
+                                </TabPanel>
+                                <TabPanel value={value} index={2}>
+                                    {vault && vault.strategies.length > 0 ? (
+                                        <div>
+                                            <StrategistList
+                                                vault={vault}
+                                                dark={false}
+                                            />
+                                        </div>
+                                    ) : (
+                                        ''
+                                    )}
+                                </TabPanel>
+                            </StyledCard>
                         </React.Fragment>
                     )
                 )}
-            </Card>
+            </Container>
         </React.Fragment>
     );
 };

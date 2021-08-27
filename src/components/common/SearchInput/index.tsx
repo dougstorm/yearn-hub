@@ -1,4 +1,6 @@
-import { makeStyles } from '@material-ui/core/styles';
+/* eslint-disable jsx-a11y/no-autofocus */
+
+import styled from 'styled-components';
 import { debounce } from 'lodash';
 import {
     Container,
@@ -7,39 +9,64 @@ import {
     InputAdornment,
     Switch,
     TextField,
+    Grid,
 } from '@material-ui/core';
 import { ChangeEvent, useState } from 'react';
-import { Delete } from '@material-ui/icons';
+import { Delete, Search } from '@material-ui/icons';
 import ResultsLabel from '../ResultsLabel';
 
-const useStyles = makeStyles({
-    root: {
-        width: '100%',
-        alignItems: 'center',
-    },
-    formContainer: {
-        width: '100%',
-        alignItems: 'center',
-        alignContent: 'center',
-    },
-    switch: {
-        color: 'white',
-        margin: '12px',
-    },
-    searchInput: {
-        width: '100%',
-        margin: '15px',
-        backgroundColor: 'white',
-        alignContent: 'center',
-    },
-    resultText: {
-        width: '90%',
-        padding: '10px',
-        color: 'white',
-        textAlign: 'center',
-    },
-});
+const StyledForm = styled.form`
+    && {
+        width: 100%;
+        align-items: center;
+    }
+`;
+const StyledTextField = styled(TextField)`
+    && {
+        width: 100%;
+        background-color: transparent;
+        align-content: center;
+        border-color: transparent;
+        .MuiOutlinedInput-root {
+            fieldset {
+                border-color: transparent !important;
+            }
+            &:hover fieldset {
+                border-color: transparent !important;
+            }
+            &.Mui-focused fieldset {
+                border-color: transparent;
+            }
+            color: ${({ theme }) => theme.text} !important;
+        }
+    }
+`;
 
+const StyledContainer = styled(Container)`
+    && {
+        width: 100%;
+        align-items: center;
+        align-content: center;
+        background-color: ${({ theme }) => theme.container} !important;
+
+        border-radius: 8px;
+    }
+`;
+const StyledContainerResult = styled(Container)`
+    && {
+        width: 90%;
+        padding: 10px;
+
+        text-align: center;
+    }
+`;
+const StyledFormControlLabel = styled(FormControlLabel)`
+    && {
+        color: ${({ theme }) => theme.text} !important;
+        margin: 8px;
+        opacity: 1;
+    }
+`;
 export type Flags = {
     onlyWithWarnings: boolean;
 };
@@ -59,7 +86,6 @@ const SearchInput = (props: SearchInputProps) => {
     const [filterVaultsWithWarnings, setFilterVaultsWithWarnings] = useState(
         false
     );
-    const classes = useStyles();
 
     const getCurrentFlags = (onlyWithWarnings: boolean) => ({
         onlyWithWarnings,
@@ -88,6 +114,7 @@ const SearchInput = (props: SearchInputProps) => {
         setFilterVaultsWithWarnings(false);
         props.onFilter('', getCurrentFlags(false));
     };
+
     const renderSearchingLabel = () => {
         let render: any;
         if (isSearching) {
@@ -112,54 +139,69 @@ const SearchInput = (props: SearchInputProps) => {
                 </>
             );
         }
-        // }
+
         return render;
     };
 
     return (
         <Container maxWidth="lg">
-            <form className={classes.root}>
-                <Container maxWidth="lg" className={classes.formContainer}>
-                    <FormControlLabel
-                        control={
-                            <Switch
-                                checked={filterVaultsWithWarnings}
-                                onChange={onFilterVaultsWithWarnings}
-                                color="primary"
+            <StyledForm>
+                <Grid container direction="row" alignItems="center" spacing={3}>
+                    <Grid item xs={12} sm={8}>
+                        <StyledContainer maxWidth="lg">
+                            <StyledTextField
+                                variant="outlined"
+                                onChange={onChange}
+                                type="search"
+                                value={searchText}
+                                placeholder="Search by vault/strategy address/name, strategist address, token name/symbol, share token symbol/name or API version."
+                                InputProps={
+                                    searchText == ''
+                                        ? {
+                                              startAdornment: (
+                                                  <InputAdornment position="end">
+                                                      <Search />
+                                                  </InputAdornment>
+                                              ),
+                                          }
+                                        : {
+                                              endAdornment: (
+                                                  <InputAdornment position="end">
+                                                      <IconButton
+                                                          aria-label="delete"
+                                                          onClick={
+                                                              handleClickClearSearch
+                                                          }
+                                                      >
+                                                          <Delete />
+                                                      </IconButton>
+                                                  </InputAdornment>
+                                              ),
+                                          }
+                                }
                             />
-                        }
-                        className={classes.switch}
-                        label="Only show Vaults with warnings"
-                    />
-                </Container>
-                <TextField
-                    className={classes.searchInput}
-                    id="outlined-basic"
-                    variant="outlined"
-                    onChange={onChange}
-                    type="search"
-                    value={searchText}
-                    placeholder="Search by vault/strategy address/name, strategist address, token name/symbol, share token symbol/name or API version."
-                    InputProps={{
-                        endAdornment:
-                            searchText !== '' ? (
-                                <InputAdornment position="end">
-                                    <IconButton
-                                        aria-label="delete"
-                                        onClick={handleClickClearSearch}
-                                    >
-                                        <Delete />
-                                    </IconButton>
-                                </InputAdornment>
-                            ) : (
-                                ''
-                            ),
-                    }}
-                />
-            </form>
-            <Container maxWidth="lg" className={classes.resultText}>
+                        </StyledContainer>
+                    </Grid>
+                    <Grid item xs={12} sm={4}>
+                        <StyledContainer maxWidth="lg">
+                            <StyledFormControlLabel
+                                control={
+                                    <Switch
+                                        checked={filterVaultsWithWarnings}
+                                        onChange={onFilterVaultsWithWarnings}
+                                        color="primary"
+                                    />
+                                }
+                                labelPlacement="start"
+                                label="Only show Vaults with warnings"
+                            />
+                        </StyledContainer>
+                    </Grid>
+                </Grid>
+            </StyledForm>
+            <StyledContainerResult maxWidth="lg">
                 {renderSearchingLabel()}
-            </Container>
+            </StyledContainerResult>
         </Container>
     );
 };

@@ -4,17 +4,20 @@ import { useParams } from 'react-router-dom';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import MuiCard from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import { Typography } from '@material-ui/core';
+
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 
 import StrategyDetail from './StrategyDetail';
+
+import { ErrorAlert } from '../../common/Alerts';
 import { Strategy } from '../../../types';
+
 import BreadCrumbs from './BreadCrumbs';
 import EtherScanLink from '../../common/EtherScanLink';
 import ReactHelmet from '../../common/ReactHelmet';
-import { ErrorAlert } from '../../common/Alerts';
+import ProgressSpinnerBar from '../../common/ProgressSpinnerBar/ProgressSpinnerBar';
+
 import { getStrategies } from '../../../utils/strategies';
 import { getReportsForStrategy, StrategyReport } from '../../../utils/reports';
 
@@ -109,10 +112,7 @@ export const SingleStrategy = () => {
                         marginTop: '100px',
                     }}
                 >
-                    <CircularProgress style={{ color: '#fff' }} />{' '}
-                    <Typography style={{ color: '#fff' }}>
-                        Loading strategy..
-                    </Typography>
+                    <ProgressSpinnerBar />
                 </div>
             ) : (
                 !error && (
